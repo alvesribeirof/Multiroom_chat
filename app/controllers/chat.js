@@ -2,10 +2,16 @@ module.exports.iniciaChat = function(application, req, res){
 	
 	var dadosForm = req.body;
 
-	req.assert('apelido', 'Nome ou apelido é obrigatório').notEmpty();
-	req.assert('apelido', 'Nome ou apelido deve conter entre 3 e 16 caracteres').len(3 , 16);
+	var apelido = (dadosForm.apelido || '').trim();
+	var erros = [];
 
-	var erros = req.validationErrors();
+	if (!apelido) {
+		erros.push({ msg: 'Nome ou apelido é obrigatório' });
+	}
+
+	if (apelido.length < 3 || apelido.length > 16) {
+		erros.push({ msg: 'Nome ou apelido deve conter entre 3 e 16 caracteres' });
+	}
 
 	if(erros){
 		res.render("index", { validacao : erros})
@@ -14,7 +20,7 @@ module.exports.iniciaChat = function(application, req, res){
 
 	application.get('io').emit(
 		'msgParaCliente', 
-		{apelido : dadosForm.apelido, mensagem : ' acabou de entrar no chat'}
+		{apelido : apelido, mensagem : ' acabou de entrar no chat'}
 
 	)
 
